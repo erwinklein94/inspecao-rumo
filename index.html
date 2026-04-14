@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumo - Inspeção Inteligente de Dormentes</title>
+    <style>
+        :root {
+            --cor-rumo-bg: #00695C; /* Verde-azulado escuro principal */
+            --cor-rumo-panel: #FFFFFF; /* Fundo do painel principal */
+            --cor-rumo-text: #212121; /* Texto escuro */
+            --cor-rumo-accent-y: #FFD600; /* Amarelo vibrante */
+            --cor-rumo-accent-g: #00E676; /* Verde-claro vibrante */
+            --cor-rumo-border: #E0E0E0; /* Bordas suaves */
+            --cor-rumo-footer-text: #BDBDBD; /* Texto discreto no rodapé */
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte limpa */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-border;
+        }
+
+        body {
+            background-color: var(--cor-rumo-bg);
+            font-family: var(--font-main);
+            color: var(--cor-rumo-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rumo-logo-circulo {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--cor-rumo-bg);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+
+        .header-slogan {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 100;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--cor-rumo-panel);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid var(--cor-rumo-border);
+            border-radius: 10px;
+        }
+
+        .control-button {
+            padding: 15px 30px;
+            background-color: var(--cor-rumo-accent-y);
+            border: none;
+            border-radius: 25px;
+            font-family: var(--font-main);
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--cor-rumo-bg);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-button:hover {
+            background-color: #fdd835;
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .view-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .preview-area {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border: 2px dashed var(--cor-rumo-border);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #preview-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+
+        .preview-placeholder {
+            color: var(--cor-rumo-footer-text);
+            text-align: center;
+        }
+
+        .results-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .result-chip {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-chip.success {
+            background-color: var(--cor-rumo-accent-g);
+            color: var(--cor-rumo-bg);
+        }
+
+        .result-chip.error {
+            background-color: #E74C3C; /* Vermelho claro */
+            color: white;
+        }
+
+        footer {
+            width: 100%;
+            max-width: 1200px;
+            text-align: right;
+            margin-top: 30px;
+            padding: 10px;
+        }
+
+        .footer-text {
+            color: var(--cor-rumo-footer-text);
+            font-size: 0.8rem;
+            font-weight: 100;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-logo">
+            <div class="rumo-logo-circulo">R</div>
+            <div class="header-title">rumo</div>
+        </div>
+        <div class="header-slogan">Somos o Brasil em movimento</div>
+    </header>
+
+    <div class="main-container">
+        <div class="control-panel">
+            <button class="control-button" id="camera-button">
+                <span>📷</span> Tirar Foto
+            </button>
+            <label class="control-button" for="file-upload">
+                <span>📤</span> Carregar Foto
+            </label>
+            <input type="file" id="file-upload" class="file-upload-input" accept="image/png, image/jpeg, image/jpg">
+        </div>
+
+        <div class="view-panel">
+            <div class="preview-area" id="preview-area">
+                <canvas id="preview-canvas"></canvas>
+                <div class="preview-placeholder" id="preview-placeholder">
+                    <span>A pré-visualização da imagem ou câmera aparecerá aqui.</span>
+                </div>
+            </div>
+
+            <div class="results-area">
+                <div class="result-chip success" id="result-success">
+                    <span>✅</span> Lote Aprovado
+                </div>
+                <div class="result-chip error" id="result-error">
+                    <span>⚠️</span> Defeito Detectado
+                </div>
+            </div>
+        </div>
+    }
+
+    <footer>
+        <span class="footer-text">Desenvolvido por Erwin Klein</span>
+    </footer>
+
+    <script>
+        const fileUpload = document.getElementById('file-upload');
+        const cameraButton = document.getElementById('camera-button');
+        const previewCanvas = document.getElementById('preview-canvas');
+        const previewArea = document.getElementById('preview-area');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        const resultSuccess = document.getElementById('result-success');
+        const resultError = document.getElementById('result-error');
+        const ctx = previewCanvas.getContext('2d');
+
+        let iaSimuladaAtiva = false; // Define se a simulação da IA está ativa para a próxima imagem
+
+        // Carrega imagem por upload
+        fileUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    displayImage(img);
+                    iaSimuladaAtiva = true; // Ativa a simulação de defeito (foto 1)
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // Tira foto por câmera (simulado como upload de trena para alternar resultados)
+        cameraButton.addEventListener('click', function() {
+            // Em produção, isso abriria a câmera e capturaria.
+            // Para simulação, vamos carregar a foto 2 (trena).
+            simularCapturaCâmera();
+        });
+
+        // Função para simular a captura de câmera
+        function simularCapturaCâmera() {
+            // Em produção: navigator.mediaDevices.getUserMedia(...)
+            // Simulação: Carregar a foto 2 (trena)
+            console.log("Simulando captura de câmera: Carregando trena...");
+            const imgTrena = new Image();
+            imgTrena.onload = function() {
+                displayImage(imgTrena);
+                iaSimuladaAtiva = false; // Ativa a simulação de trena (foto 2)
+            }
+            imgTrena.src = 'simulated_camera_trena.png'; // Substitua pelo caminho real se necessário
+            // Como eu não consigo carregarassets externos, esta imagem não aparecerá se você abrir o HTML isolado.
+            // Mas a lógica está montada.
+            if (!imgTrena.complete) {
+                // Para testes isolados, simular o upload de arquivo para a trena
+                fileUpload.click();
+            }
+        }
+
+        // Exibe a imagem no canvas e inicia a simulação da IA
+        function displayImage(img) {
+            previewArea.style.border = "none";
+            previewPlaceholder.style.display = "none";
+            previewCanvas.style.display = "block";
+            previewCanvas.width = img.width;
+            previewCanvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            // Reseta resultados anteriores
+            resultSuccess.style.display = "none";
+            resultError.style.display = "none";
+
+            // Executa simulação da IA após 1 segundo
+            setTimeout(() => simularProcessamentoIA(img), 1000);
+        }
+
+        // Função para simular a IA com base nos seus sucessos anteriores
+        function simularProcessamentoIA(img) {
+            console.log("--- Iniciando Simulação de IA ---");
+            console.log("Modelo PT: '/content/runs/detect/train/weights/best.pt'");
+            console.log("Modelo ONNX: '/content/dataset/treino_ia/best.onnx'");
+
+            // Define os parâmetros de detecção simulados
+            let boxX, boxY, boxW, boxH, labelText;
+
+            if (iaSimuladaAtiva) {
+                // Simulação para o defeito (foto 1, image_7.png)
+                labelText = "defeito 0.98"; // 98% de confiança
+                // Usando valores aproximados da sua detecção real
+                boxX = 0.05 * img.width;
+                boxY = 0.05 * img.height;
+                boxW = 0.9 * img.width;
+                boxH = 0.9 * img.height;
+                resultError.style.display = "flex";
+            } else {
+                // Simulação para a trena (foto 2, image_5.png)
+                labelText = "trena 0.90"; // 90% de confiança
+                // Usando valores aproximados para desenhar em volta da trena
+                boxX = 0.6 * img.width;
+                boxY = 0.1 * img.height;
+                boxW = 0.3 * img.width;
+                boxH = 0.5 * img.height;
+                resultSuccess.style.display = "flex";
+            }
+
+            // Desenha a caixa delimitadora simulada
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#00695C'; // Cor da borda
+            ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+            // Desenha a pastilha de texto (YOLO style)
+            ctx.fillStyle = '#00695C';
+            const textPadding = 10;
+            const textWidth = ctx.measureText(labelText).width + textPadding * 2;
+            const textHeight = 30; // Aproximado
+            ctx.fillRect(boxX, boxY, textWidth, textHeight);
+
+            // Desenha o texto
+            ctx.fillStyle = 'white';
+            ctx.font = '20px var(--font-main)';
+            ctx.fillText(labelText, boxX + textPadding, boxY + textHeight - 8);
+
+            console.log(`Simulação concluída: Detecção de '${labelText}' gerada.`);
+        }
+    </script>
+</body>
+</html>
